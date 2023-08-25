@@ -11,7 +11,7 @@ pub enum Suite {
 pub struct Rank(u8);
 
 #[derive(Clone, Copy)]
-struct Card {
+pub struct Card {
     suite: Suite,
     rank: Rank,
 }
@@ -42,4 +42,18 @@ pub enum HandType {
     TwoPairs,
     OnePair,
     NoPair,
+}
+
+pub fn fresh_deck() -> Vec<Card> {
+    use Suite::*;
+    let mut deck = vec![];
+    for suite in vec![Clubs, Hearts, Spades, Diamonds].into_iter() {
+        for rank in 1..=13 {
+            deck.push(Card {
+                suite,
+                rank: Rank(rank),
+            });
+        }
+    }
+    deck
 }
