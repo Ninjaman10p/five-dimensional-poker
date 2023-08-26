@@ -5,11 +5,11 @@ use crate::player::*;
 use yew::prelude::*;
 
 const CARD_LAYOUTS: [&str; 5] = [
-    "bottom: 35px; left: 30px",
-    "top: 35px; left: 30px",
+    "bottom: 35px; left: 60px",
+    "top: 35px; left: 60px",
     "top: 15px; left: 250px",
-    "top: 35px; right: 30px",
-    "bottom: 35px; right: 30px",
+    "top: 35px; left: 440px",
+    "bottom: 35px; left: 440px",
 ];
 
 const CARD_LAYOUT_INDICES: [[usize; 5]; 6] = [
@@ -62,8 +62,12 @@ pub fn BoardDisplay(props: &BoardDisplayProps) -> Html {
     let top = props.coordinates.1 * 362 + 25;
     let style = format!("left: {left}px; top: {top}px");
     let active_state = &props.board.get_turn(props.turn_limit);
-    let active_hand =
-        active_state.player_states[props.active_player].hand.clone();
+    let active_hand = if active_state.player_states[props.active_player].folded
+    {
+        vec![]
+    } else {
+        active_state.player_states[props.active_player].hand.clone()
+    };
 
     let card_layout_indices =
         CARD_LAYOUT_INDICES[props.players.len() - 1].clone();
@@ -82,13 +86,20 @@ pub fn BoardDisplay(props: &BoardDisplayProps) -> Html {
                     .commitment(),
             }
         };
-        enemy_hands.push({html! {
-            <Hand hand={active_state.player_states[player_number].hand.clone()}
-                  visible={turn.completed_stage >= 4 && !playerstate.folded}
-                  playerstate={playerstatedisplay}
-                  style={CARD_LAYOUTS[card_layout_indices[i - 1]]}
-              />
-        }});
+        let hand = if active_state.player_states[player_number].folded {
+            vec![]
+        } else {
+            active_state.player_states[player_number].hand.clone()
+        };
+        enemy_hands.push({
+            html! {
+                <Hand {hand}
+                      visible={turn.completed_stage >= 4 && !playerstate.folded}
+                      playerstate={playerstatedisplay}
+                      style={CARD_LAYOUTS[card_layout_indices[i - 1]]}
+                  />
+            }
+        });
     }
 
     let ondragstart_player = if in_future {
