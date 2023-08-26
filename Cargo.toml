@@ -7,9 +7,11 @@ edition = "2021"
 
 [dependencies]
 getrandom = { version = "0.2.10", features = ["js", "wasm-bindgen"] }
+gloo-dialogs = "0.2.0"
+itertools = "0.11.0"
 log = "0.4.20"
 rand = "0.8.5"
 wasm-bindgen = "0.2.87"
 wasm-logger = "0.2.0"
-web-sys = "0.3.64"
+web-sys = { version = "0.3.64", features = ["DataTransfer", "DragEvent"] }
 yew = { version = "0.20.0", features = ["csr"] }
