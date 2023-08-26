@@ -44,18 +44,26 @@ pub fn GameDisplay(props: &GameDisplayProps) -> Html {
 
                         let num_burn = (t_from as i64 - t as i64).abs()
                             + (timeline_from as i64 - timeline_num as i64)
-                                .abs();
+                                .abs()
+                                * if player < game.players.len() {
+                                    1
+                                } else {
+                                    2
+                                };
                         let turn_limit = game.get_turn();
                         if gloo_dialogs::confirm(&format!("Time travel? You will burn {}⏲ and have to raise in your current timeline", num_burn)) && game.try_raise_or_bet(timeline_from) {
                             game.players[player].chips -= num_burn;
-                            let card = game.timelines[timeline_from].boards
-                                [t_from]
+                            let card = {
+                                let from_turn = game.timelines[timeline_from].boards[t_from]
                                 .get_turn_mut(
                                     Some(turn_limit).and_then(|x| Some(x + 1)),
-                                )
-                                .player_states[player]
-                                .hand
-                                .remove(i);
+                                );
+                                if player < game.players.len() {
+                                    from_turn.player_states[player].hand.remove(i)
+                                } else {
+                                    from_turn.open_cards.remove(i)
+                                }
+                            };
                             let (timeline_num, t) =
                                 if game.timelines[timeline_num].boards[t]
                                     .is_past(Some(turn_limit))
@@ -65,6 +73,12 @@ pub fn GameDisplay(props: &GameDisplayProps) -> Html {
                                 } else {
                                     (timeline_num, t)
                                 };
+                            let to_turn = game.timelines[timeline_num].boards[t].get_turn_mut(Some(turn_limit));
+                            if player < game.players.len() {
+                                to_turn.player_states[player].hand.push(card);
+                            } else {
+                                to_turn.open_cards.push(card);
+                            }
                             game.timelines[timeline_num].boards[t]
                                 .get_turn_mut(Some(turn_limit))
                                 .player_states[player]

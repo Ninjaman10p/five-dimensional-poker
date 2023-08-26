@@ -46,8 +46,15 @@ impl Rank {
     }
 }
 
-pub fn calculate_winner<T>(hands: &Vec<(T, Vec<Card>)>) -> T where T: Sized + Copy + Clone {
-    hands.iter().max_by(|a, b| type_of_hand(&a.1).cmp(&type_of_hand(&b.1))).unwrap().0
+pub fn calculate_winner<T>(hands: &Vec<(T, Vec<Card>)>) -> T
+where
+    T: Sized + Copy + Clone,
+{
+    hands
+        .iter()
+        .max_by(|a, b| type_of_hand(&a.1).cmp(&type_of_hand(&b.1)))
+        .unwrap()
+        .0
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -107,17 +114,18 @@ pub fn type_of_hand_5(hand: &Vec<Card>) -> HandType {
         return ThreeOfAKind;
     }
     if ranks[0] >= 2 && ranks[1] >= 2 {
-        return TwoPairs
+        return TwoPairs;
     }
     if ranks[0] >= 2 {
-        return OnePair
+        return OnePair;
     }
 
     NoPair
 }
 
 pub fn split_by_sequence(hand: &Vec<Card>) -> Vec<usize> {
-    let mut hand: Vec<u8> = hand.clone().into_iter().map(|x| x.rank.0).collect();
+    let mut hand: Vec<u8> =
+        hand.clone().into_iter().map(|x| x.rank.0).collect();
     hand.sort();
 
     let mut out = vec![];
@@ -208,4 +216,3 @@ pub fn CardDisplay(props: &CardDisplayProps) -> Html {
         </div>
     }
 }
-

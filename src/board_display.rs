@@ -158,9 +158,20 @@ pub fn BoardDisplay(props: &BoardDisplayProps) -> Html {
         }
     };
 
+    let ondragover = {
+        let infinity = props.turn_limit.is_none();
+        let onbuttonclick = props.onbuttonclick.clone();
+        move |e: DragEvent| {
+            e.prevent_default();
+            if infinity {
+                onbuttonclick.emit(ButtonType::ToggleView)
+            }
+        }
+    };
+
     html! {
         <div class={format!("table absolute {}", is_in_future)}
-            {style} ondragover={|e: DragEvent| e.prevent_default()} ondrop={props.ondrop.clone()}>
+            {style} {ondragover} ondrop={props.ondrop.clone()}>
             <Hand hand={active_hand}
                 visible={true}
                 style="bottom: 25px; left: 250px"

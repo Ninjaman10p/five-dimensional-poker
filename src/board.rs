@@ -1,7 +1,7 @@
 pub mod turn;
 
-pub use turn::Turn;
 use crate::cards::*;
+pub use turn::Turn;
 
 #[derive(Clone, PartialEq, Debug)]
 pub struct Board(pub Vec<Turn>, pub bool); // second element is whether to show the present

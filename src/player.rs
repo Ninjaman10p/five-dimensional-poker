@@ -12,7 +12,6 @@ impl Player {
     }
 }
 
-
 #[derive(Clone, PartialEq, Debug)]
 pub struct PlayerState {
     pub hand: Vec<Card>,

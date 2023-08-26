@@ -8,9 +8,9 @@ pub mod multiverse;
 mod new_game;
 pub mod player;
 
-use multiverse::*;
 use game::*;
 use game_display::*;
+use multiverse::*;
 use new_game::*;
 use yew::prelude::*;
 

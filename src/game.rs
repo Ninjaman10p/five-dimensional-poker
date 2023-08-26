@@ -1,6 +1,6 @@
+use crate::board::*;
 use crate::cards::*;
 use rand::prelude::SliceRandom;
-use crate::board::*;
 use rand::thread_rng;
 
 pub enum ButtonType {

@@ -1,5 +1,5 @@
-use wasm_bindgen::JsCast;
 use crate::multiverse::*;
+use wasm_bindgen::JsCast;
 use web_sys::*;
 use yew::prelude::*;
 
@@ -52,9 +52,14 @@ pub fn NewGame(props: &NewGameProps) -> Html {
         }
     };
     html! {
+        <>
+        <div id="title1">{"Time"}</div>
+        <div id="title2">{"Travel"}</div>
+        <div id="title3">{"Poker"}</div>
         <div class="table centered">
             {for inputs}
             <button class="start-game do-button" {onclick}>{"Start"}</button>
         </div>
+        </>
     }
 }

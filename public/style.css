@@ -17,6 +17,7 @@ html {
     border: 5px solid brown;
     box-sizing: content-box;
     border-radius: 10px;
+    margin: 25px;
     padding: 10px;
     width: 500px;
     height: 312px;
@@ -24,16 +25,51 @@ html {
     position: relative;
 }
 
-body {
-}
-
 .player-name {
     margin: auto;
     display: block;
     width: min-content;
-    background-color: khaki;
+    position: absolute;
+    background-color: #fbfbf8;
     margin-bottom: 10px;
+    padding-left: 5px;
     animation: from-left;
+}
+
+.player-name:has(#PlayerName0) {
+    left: 60px;
+    top: 50px;
+    transform: rotate(calc(-0.025640007174590595turn / 1.5)) translate(2.65237px, 2.852927px);
+}
+
+.player-name:has(#PlayerName1) {
+    right: 50px;
+    top: 60px;
+    transform: rotate(calc(-0.027912291548889002turn / -1.5)) translate(-1.73686px, -0.609465px);
+}
+
+.player-name:has(#PlayerName2) {
+    left: 50px;
+    top: 120px;
+    transform: rotate(calc(-0.049294732698637725turn / 1.5)) translate(4.31924px, -3.71038px);
+}
+
+.player-name:has(#PlayerName3) {
+    right: 50px;
+    top: 120px;
+    transform: rotate(calc(-0.01168697776686114turn / -1.5)) translate(-2.89761px, -4.76832px);
+}
+
+.player-name:has(#PlayerName4) {
+    left: 50px;
+    top: 180px;
+    transform: rotate(calc(-0.035603076994618746turn / 1.5)) translate(3.17874px, -4.15831px);
+}
+
+.player-name:has(#PlayerName5) {
+    right: 50px;
+    top: 180px;
+    transform: rotate(calc(-0.03652729026566598turn / -1.5)) translate(2.12999px, 4.19067px);
 }
 
 .player-name input {
@@ -79,6 +115,7 @@ button.start-game {
 
 .hand-of-cards {
     position: absolute;
+    min-height: 45px;
     transform: translate(-50%, 0%);
 }
 
@@ -169,5 +206,51 @@ button.start-game {
     }
     100% {
         transform: rotate(1turn);
+    }
+}
+
+#title1,
+#title2,
+#title3 {
+    color: white;
+    font-size: 30px;
+    font-variant: small-caps;
+    animation: float 2s alternate infinite ease-in-out;
+    position: absolute;
+}
+
+#title1 {
+    right: 51vw;
+    top: calc(50vh - 280px);
+}
+
+#title2 {
+    animation-duration: 2.157s;
+    left: 50vw;
+    top: calc(50vh - 280px);
+}
+
+#title3 {
+    left: 50vw;
+    transform: translate(-50%, 0);
+    animation: float-centered 1.768s alternate infinite ease-in-out;
+    top: calc(50vh - 240px);
+}
+
+@keyframes float {
+    0% {
+        transform: translate(0, -5px);
+    }
+    100% {
+        transform: translate(0, 5px);
+    }
+}
+
+@keyframes float-centered {
+    0% {
+        transform: translate(-50%, -5px);
+    }
+    100% {
+        transform: translate(-50%, 5px);
     }
 }
