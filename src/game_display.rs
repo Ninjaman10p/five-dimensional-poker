@@ -45,10 +45,10 @@ pub fn GameDisplay(props: &GameDisplayProps) -> Html {
                         let num_burn = (t_from as i64 - t as i64).abs()
                             + (timeline_from as i64 - timeline_num as i64)
                                 .abs()
-                                * if player < game.players.len() {
-                                    1
+                                + if player < game.players.len() {
+                                    0
                                 } else {
-                                    2
+                                    4
                                 };
                         let turn_limit = game.get_turn();
                         if gloo_dialogs::confirm(&format!("Time travel? You will burn {}⏲ and have to raise in your current timeline", num_burn)) && game.try_raise_or_bet(timeline_from) {
@@ -79,11 +79,6 @@ pub fn GameDisplay(props: &GameDisplayProps) -> Html {
                             } else {
                                 to_turn.open_cards.push(card);
                             }
-                            game.timelines[timeline_num].boards[t]
-                                .get_turn_mut(Some(turn_limit))
-                                .player_states[player]
-                                .hand
-                                .push(card);
                             ongameupdate.emit(game);
                         }
                     }
