@@ -413,6 +413,10 @@ function __wbg_get_imports() {
         const ret = getObject(arg0).document;
         return isLikeNone(ret) ? 0 : addHeapObject(ret);
     };
+    imports.wbg.__wbg_confirm_d7ddd98cd3a22cf2 = function() { return handleError(function (arg0, arg1, arg2) {
+        const ret = getObject(arg0).confirm(getStringFromWasm0(arg1, arg2));
+        return ret;
+    }, arguments) };
     imports.wbg.__wbg_prompt_2f8fb8177ba4018e = function() { return handleError(function (arg0, arg1, arg2, arg3) {
         const ret = getObject(arg1).prompt(getStringFromWasm0(arg2, arg3));
         var ptr1 = isLikeNone(ret) ? 0 : passStringToWasm0(ret, wasm.__wbindgen_malloc, wasm.__wbindgen_realloc);
@@ -713,12 +717,12 @@ function __wbg_get_imports() {
         const ret = wasm.memory;
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper6776 = function(arg0, arg1, arg2) {
-        const ret = makeMutClosure(arg0, arg1, 540, __wbg_adapter_24);
+    imports.wbg.__wbindgen_closure_wrapper6828 = function(arg0, arg1, arg2) {
+        const ret = makeMutClosure(arg0, arg1, 503, __wbg_adapter_24);
         return addHeapObject(ret);
     };
-    imports.wbg.__wbindgen_closure_wrapper7014 = function(arg0, arg1, arg2) {
-        const ret = makeMutClosure(arg0, arg1, 563, __wbg_adapter_27);
+    imports.wbg.__wbindgen_closure_wrapper7062 = function(arg0, arg1, arg2) {
+        const ret = makeMutClosure(arg0, arg1, 526, __wbg_adapter_27);
         return addHeapObject(ret);
     };
 
@@ -760,7 +764,7 @@ async function __wbg_init(input) {
     if (wasm !== undefined) return wasm;
 
     if (typeof input === 'undefined') {
-        input = new URL('five-dimensional-poker-e8bca80f28d834b_bg.wasm', import.meta.url);
+        input = new URL('five-dimensional-poker-79cce629f27a1014_bg.wasm', import.meta.url);
     }
     const imports = __wbg_get_imports();
 

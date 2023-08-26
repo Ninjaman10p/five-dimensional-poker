@@ -1,6 +1,6 @@
-use yew::prelude::*;
-use crate::*;
 use crate::board_display::*;
+use crate::*;
+use yew::prelude::*;
 
 #[derive(PartialEq, Properties)]
 pub struct GameDisplayProps {
@@ -42,13 +42,17 @@ pub fn GameDisplay(props: &GameDisplayProps) -> Html {
                         let i: usize =
                             dt.get_data("card").unwrap().parse().unwrap();
 
+                        let num_burn = (t_from as i64 - t as i64).abs()
+                            + (timeline_from as i64 - timeline_num as i64)
+                                .abs();
                         let turn_limit = game.get_turn();
-                        if game.try_raise(timeline_from, 1) {
-                            // TODO
-                            log::info!("hi");
+                        if gloo_dialogs::confirm(&format!("Time travel? You will burn {}⏲ and have to raise in your current timeline", num_burn)) && game.try_raise_or_bet(timeline_from) {
+                            game.players[player].chips -= num_burn;
                             let card = game.timelines[timeline_from].boards
                                 [t_from]
-                                .get_turn_mut(Some(turn_limit))
+                                .get_turn_mut(
+                                    Some(turn_limit).and_then(|x| Some(x + 1)),
+                                )
                                 .player_states[player]
                                 .hand
                                 .remove(i);
@@ -61,7 +65,8 @@ pub fn GameDisplay(props: &GameDisplayProps) -> Html {
                                 } else {
                                     (timeline_num, t)
                                 };
-                            game.timelines[timeline_num].boards[t].get_turn_mut(Some(turn_limit))
+                            game.timelines[timeline_num].boards[t]
+                                .get_turn_mut(Some(turn_limit))
                                 .player_states[player]
                                 .hand
                                 .push(card);
@@ -71,28 +76,52 @@ pub fn GameDisplay(props: &GameDisplayProps) -> Html {
                 };
                 let onbuttonclick = {
                     let game = props.game.clone();
+                    let zeroed = game.timelines[timeline_num].boards[t]
+                        .get_turn(Some(game.get_turn()))
+                        .bet_amount
+                        == 0;
                     let ongamechange = props.ongameupdate.clone();
                     move |b: ButtonType| {
                         log::info!("hi");
                         let mut game = game.clone();
                         use ButtonType::*;
                         match b {
-                            Call => {
-                                game.try_call(timeline_num);
+                            CallOrCheck => {
+                                if zeroed {
+                                    game.try_check(timeline_num);
+                                } else {
+                                    game.try_call(timeline_num);
+                                }
                             }
-                            Raise => {
-                                game.try_raise(timeline_num, 1);
+                            RaiseOrBet => {
+                                if zeroed {
+                                    game.try_initial_bet(timeline_num);
+                                } else {
+                                    game.try_raise(timeline_num);
+                                }
                             }
                             Fold => game.fold(timeline_num),
+                            DoNothing => game.skip(timeline_num, t),
+                            ToggleView => {
+                                let new_view =
+                                    !game.timelines[timeline_num].boards[t].1;
+                                game.timelines[timeline_num].boards[t].1 =
+                                    new_view;
+                            }
                         }
                         ongamechange.emit(game);
                     }
                 };
                 let board = board.clone();
+                let turn_limit = if board.1 {
+                    None
+                } else {
+                    Some(props.game.get_turn())
+                };
                 boards.push(html! {
                     <BoardDisplay
                         board={board}
-                        turn_limit={Some(props.game.get_turn())}
+                        {turn_limit}
                         coordinates={(t + timeline.starting_time, timeline_num)}
                         active_player={props.game.get_active_player()}
                         {ondragstart}
@@ -113,7 +142,6 @@ pub fn GameDisplay(props: &GameDisplayProps) -> Html {
             move |_e: MouseEvent| {
                 let mut game = game.clone();
                 game.active_player = game.get_active_player();
-                log::info!("{:?}", game);
                 ongameupdate.emit(game);
             }
         };

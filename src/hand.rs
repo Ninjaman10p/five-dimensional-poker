@@ -42,7 +42,7 @@ pub fn Hand(props: &HandProps) -> Html {
         html! {}
     };
     html! {
-        <div class="hand" style={props.style.to_string()}>
+        <div class="hand-of-cards" style={props.style.to_string()}>
             {for cards}<br/>
             {player_state}
         </div>

@@ -4,9 +4,11 @@ use crate::board::*;
 use rand::thread_rng;
 
 pub enum ButtonType {
-    Call,
-    Raise,
+    CallOrCheck,
+    RaiseOrBet,
     Fold,
+    ToggleView,
+    DoNothing,
 }
 
 // TIMELINES

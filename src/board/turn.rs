@@ -1,4 +1,5 @@
 use crate::cards::*;
+use crate::player::PlayerState;
 
 #[derive(Clone, PartialEq, Debug)]
 pub struct Turn {
@@ -6,14 +7,8 @@ pub struct Turn {
     pub open_cards: Vec<Card>,
     pub deck: Vec<Card>,
     pub completed_stage: usize,
-    pub ante: Vec<i64>,
-}
-
-#[derive(Clone, PartialEq, Debug)]
-pub struct PlayerState {
-    pub hand: Vec<Card>,
-    pub bet: Vec<i64>,
-    pub folded: bool,
+    pub bet_amount: i64,
+    pub num_checks: usize,
 }
 
 impl Turn {
@@ -37,15 +32,8 @@ impl Turn {
             open_cards: open,
             player_states,
             completed_stage: 0,
-            ante: vec![],
-        }
-    }
-
-    pub fn set_ante(&mut self, amount: i64) {
-        if self.ante.len() <= self.completed_stage {
-            self.ante.push(amount)
-        } else {
-            self.ante[self.completed_stage] = amount;
+            bet_amount: 0,
+            num_checks: 0,
         }
     }
 }

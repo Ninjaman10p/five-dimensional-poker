@@ -4,11 +4,11 @@ pub use turn::Turn;
 use crate::cards::*;
 
 #[derive(Clone, PartialEq, Debug)]
-pub struct Board(pub Vec<Turn>);
+pub struct Board(pub Vec<Turn>, pub bool); // second element is whether to show the present
 
 impl Board {
     pub fn new(deck: Vec<Card>, num_players: usize) -> Self {
-        Board(vec![Turn::first_round(deck, num_players)])
+        Board(vec![Turn::first_round(deck, num_players)], false)
     }
 
     pub fn timeline_intersect(base: &Board, turn: usize) -> Board {

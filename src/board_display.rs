@@ -1,15 +1,15 @@
+use crate::board::*;
 use crate::game::*;
-use yew::prelude::*;
 use crate::hand::*;
 use crate::player::*;
-use crate::board::*;
+use yew::prelude::*;
 
 const CARD_LAYOUTS: [&str; 5] = [
     "bottom: 35px; left: 30px",
     "top: 35px; left: 30px",
-    "top: 15px; left: 190px",
+    "top: 15px; left: 250px",
     "top: 35px; right: 30px",
-    "bottom: 35px;; right: 30px",
+    "bottom: 35px; right: 30px",
 ];
 
 const CARD_LAYOUT_INDICES: [[usize; 5]; 6] = [
@@ -38,31 +38,59 @@ pub struct BoardDisplayProps {
 
 #[function_component]
 pub fn BoardDisplay(props: &BoardDisplayProps) -> Html {
+    if let Some(turn_limit) = props.turn_limit {
+        let turn = props.board.get_turn(Some(turn_limit));
+        if turn_limit + 1 == props.board.0.len() {
+            // only continue to fold if not at the present, and also not when the game is over
+            if turn.player_states[props.active_player].folded
+                || turn.completed_stage >= 4
+            {
+                props.onbuttonclick.emit(ButtonType::DoNothing);
+            }
+        }
+    }
+    let turn = props.board.get_turn(props.turn_limit);
     let in_future = props.board.is_past(props.turn_limit);
-    let is_in_future = if in_future { "disabled-board" } else { "" };
+    let is_in_future = if in_future
+        || props.board.get_turn(props.turn_limit).completed_stage >= 4
+    {
+        "disabled-board"
+    } else {
+        ""
+    };
     let left = props.coordinates.0 * 550 + 25;
     let top = props.coordinates.1 * 362 + 25;
     let style = format!("left: {left}px; top: {top}px");
     let active_state = &props.board.get_turn(props.turn_limit);
     let active_hand =
         active_state.player_states[props.active_player].hand.clone();
-    log::info!("{:?}", active_hand);
-    let mut enemy_hands = vec![];
+
     let card_layout_indices =
         CARD_LAYOUT_INDICES[props.players.len() - 1].clone();
+
+    let mut enemy_hands = vec![];
     for i in 1..active_state.player_states.len() {
         let player_number = (props.active_player + i) % props.players.len();
-        let playerstate = PlayerState {
-
+        let player = &props.players[player_number];
+        let playerstate = turn.player_states[player_number].clone();
+        let playerstatedisplay = {
+            PlayerStateDisplay {
+                bank: player.chips,
+                name: player.name.to_string(),
+                betting: props.board.get_turn(props.turn_limit).player_states
+                    [player_number]
+                    .commitment(),
+            }
         };
-        enemy_hands.push(html! {
+        enemy_hands.push({html! {
             <Hand hand={active_state.player_states[player_number].hand.clone()}
-                  visible={false}
-                  {playerstate}
+                  visible={turn.completed_stage >= 4 && !playerstate.folded}
+                  playerstate={playerstatedisplay}
                   style={CARD_LAYOUTS[card_layout_indices[i - 1]]}
               />
-        });
+        }});
     }
+
     let ondragstart_player = if in_future {
         Callback::noop()
     } else {
@@ -77,13 +105,43 @@ pub fn BoardDisplay(props: &BoardDisplayProps) -> Html {
         props.ondragstart.reform(|(e, i)| (e, usize::MAX, i))
     };
 
-    let buttons = if in_future {
+    let playerstate = {
+        let player = &props.players[props.active_player];
+        PlayerStateDisplay {
+            bank: player.chips,
+            name: player.name.to_string(),
+            betting: props.board.get_turn(props.turn_limit).player_states
+                [props.active_player]
+                .commitment(),
+        }
+    };
+
+    let potinfo = PlayerStateDisplay {
+        name: "Pot".to_string(),
+        betting: props
+            .board
+            .get_turn(props.turn_limit)
+            .player_states
+            .iter()
+            .map(|x| x.commitment())
+            .sum(),
+        bank: props.board.get_turn(props.turn_limit).bet_amount,
+    };
+
+    let buttons = if in_future
+        || props.turn_limit.is_none()
+        || turn.completed_stage >= 4
+    {
         html! {}
     } else {
         html! {
             <div class="actions">
-                <button class="do-button" onclick={props.onbuttonclick.reform(|_| ButtonType::Call)}>{"Call"}</button>
-                <button class="do-button" onclick={props.onbuttonclick.reform(|_| ButtonType::Raise)}>{"Raise"}</button>
+                <button class="do-button" onclick={props.onbuttonclick.reform(|_| ButtonType::CallOrCheck)}>
+                    {if turn.bet_amount == 0 { "Check" } else { "Call" }}
+                </button>
+                <button class="do-button" onclick={props.onbuttonclick.reform(|_| ButtonType::RaiseOrBet)}>
+                    {if turn.bet_amount == 0 { "Bet" } else { "Raise" }}
+                </button>
                 <button class="do-button" onclick={props.onbuttonclick.reform(|_| ButtonType::Fold)}>{"Fold"}</button>
             </div>
         }
@@ -94,18 +152,34 @@ pub fn BoardDisplay(props: &BoardDisplayProps) -> Html {
             {style} ondragover={|e: DragEvent| e.prevent_default()} ondrop={props.ondrop.clone()}>
             <Hand hand={active_hand}
                 visible={true}
-                style="bottom: 25px; left: 190px"
+                style="bottom: 25px; left: 250px"
                 draggable={!in_future}
+                {playerstate}
                 ondragstart={ondragstart_player} />
             {for enemy_hands}
-            <Hand hand={vec![active_state.deck[0]]} visible={false} style="top: 150px; left: 150px" />
-            <Hand hand={active_state.open_cards.clone()}
+            <Hand hand={vec![active_state.deck[0]]} visible={false} style="top: 150px; left: 150px; transform: none" />
+            <Hand hand={active_state.open_cards.clone()} playerstate={potinfo}
                 visible={true}
-                style="top: 150px; left: 200px"
+                style="top: 150px; left: 200px; transform: none; text-align: left"
                 draggable={!in_future}
                 ondragstart={ondragstart_global} />
             {buttons}
-            <div class="clock">{"∞"}</div>
+            {clock(&props.turn_limit.map(|x| (x+1).to_string()).unwrap_or("∞".to_string()), props.onbuttonclick.reform(|_| ButtonType::ToggleView))}
+        </div>
+    }
+}
+
+fn clock(label: &str, onclick: Callback<MouseEvent>) -> Html {
+    let ticks = (0..12_i8).map(|x| {
+        html! {
+            <div class="tick-mark" style={format!("transform: rotate({}turn)", Into::<f64>::into(x) / 12_f64)}></div>
+        }
+    });
+    html! {
+        <div class="clock" {onclick}>
+            {for ticks}
+            <div class="hand"></div>
+            <div class="label">{label}</div>
         </div>
     }
 }
