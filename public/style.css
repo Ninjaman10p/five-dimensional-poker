@@ -28,12 +28,21 @@ html {
 .player-name {
     margin: auto;
     display: block;
-    width: min-content;
+    width: 154px;
     position: absolute;
     background-color: #fbfbf8;
     margin-bottom: 10px;
     padding-left: 5px;
-    animation: from-left;
+    animation: 0.5s ease-out 0s 1 running thrown-in;
+}
+
+@keyframes thrown-in {
+    0% {
+        transform: none;
+        left: 200px;
+        top: 300px;
+        box-shadow: 0px 1px 2px 1px black;
+    }
 }
 
 .player-name:has(#PlayerName0) {
@@ -43,7 +52,7 @@ html {
 }
 
 .player-name:has(#PlayerName1) {
-    right: 50px;
+    left: calc(500px - 50px - 154px);
     top: 60px;
     transform: rotate(calc(-0.027912291548889002turn / -1.5)) translate(-1.73686px, -0.609465px);
 }
@@ -55,7 +64,7 @@ html {
 }
 
 .player-name:has(#PlayerName3) {
-    right: 50px;
+    left: calc(500px - 50px - 154px);
     top: 120px;
     transform: rotate(calc(-0.01168697776686114turn / -1.5)) translate(-2.89761px, -4.76832px);
 }
@@ -67,7 +76,7 @@ html {
 }
 
 .player-name:has(#PlayerName5) {
-    right: 50px;
+    left: calc(500px - 50px - 154px);
     top: 180px;
     transform: rotate(calc(-0.03652729026566598turn / -1.5)) translate(2.12999px, 4.19067px);
 }

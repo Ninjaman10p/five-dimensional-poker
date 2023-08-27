@@ -88,18 +88,22 @@ impl std::fmt::Display for HandType {
         &self,
         f: &mut std::fmt::Formatter<'_>,
     ) -> Result<(), std::fmt::Error> {
-        write!(f, "{}", match self {
-        HandType::NoPair => "No Pairs",
-        HandType::OnePair => "One Pair",
-        HandType::TwoPairs => "Two Pairs",
-        HandType::ThreeOfAKind => "Three of a Kind",
-        HandType::Straight => "Straight",
-        HandType::Flush => "Flush",
-        HandType::FullHouse => "Full House",
-        HandType::FourOfAKind => "Four of a Kind",
-        HandType::StraightFlush => "Straight Flush",
-        HandType::FiveOfAKind => "Five of a Kind",
-            })
+        write!(
+            f,
+            "{}",
+            match self {
+                HandType::NoPair => "No Pairs",
+                HandType::OnePair => "One Pair",
+                HandType::TwoPairs => "Two Pairs",
+                HandType::ThreeOfAKind => "Three of a Kind",
+                HandType::Straight => "Straight",
+                HandType::Flush => "Flush",
+                HandType::FullHouse => "Full House",
+                HandType::FourOfAKind => "Four of a Kind",
+                HandType::StraightFlush => "Straight Flush",
+                HandType::FiveOfAKind => "Five of a Kind",
+            }
+        )
     }
 }
 

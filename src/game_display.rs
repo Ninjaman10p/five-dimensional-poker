@@ -45,13 +45,10 @@ pub fn GameDisplay(props: &GameDisplayProps) -> Html {
                         let num_burn = (t_from as i64 - t as i64).abs()
                             + (timeline_from as i64 - timeline_num as i64)
                                 .abs()
-                                + if player < game.players.len() {
-                                    0
-                                } else {
-                                    4
-                                };
+                            + if player < game.players.len() { 0 } else { 4 };
                         let turn_limit = game.get_turn();
-                        if gloo_dialogs::confirm(&format!("Time travel? You will burn {}⏲ and have to raise in your current timeline", num_burn)) && game.try_raise_or_bet(timeline_from) {
+                        if (timeline_from != timeline_num || t_from != t) &&
+                         gloo_dialogs::confirm(&format!("Time travel? You will burn {}⏲ and have to raise in your current timeline", num_burn)) && game.try_raise_or_bet(timeline_from) {
                             let initiating_player = game.get_active_player();
                             game.players[initiating_player].chips -= num_burn;
                             let card = {
@@ -69,7 +66,6 @@ pub fn GameDisplay(props: &GameDisplayProps) -> Html {
                                 if game.timelines[timeline_num].boards[t]
                                     .is_past(Some(turn_limit))
                                 {
-                                    log::info!("already in the future");
                                     game.spawn_timeline(timeline_num, t)
                                 } else {
                                     (timeline_num, t)
@@ -92,7 +88,6 @@ pub fn GameDisplay(props: &GameDisplayProps) -> Html {
                         == 0;
                     let ongamechange = props.ongameupdate.clone();
                     move |b: ButtonType| {
-                        log::info!("hi");
                         let mut game = game.clone();
                         use ButtonType::*;
                         match b {
@@ -157,7 +152,7 @@ pub fn GameDisplay(props: &GameDisplayProps) -> Html {
         };
         html! { // hide the board
             <div class="table centered">
-                <div class="player-name">
+                <div class="player-name" style="animation: none;">
                     <div style="width:200px; padding: 10px;">
                         {format!("It is {}'s turn", props.game.players[props.game.get_active_player()].name)}
                     </div>

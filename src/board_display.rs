@@ -158,7 +158,6 @@ pub fn BoardDisplay(props: &BoardDisplayProps) -> Html {
         }
     };
 
-    log::info!("{:?}", turn.winning_hand_type);
     let winning_type_display = if let Some(winning_type) = turn.winning_hand_type {
         html!{
             <div class="winning-hand-display">{format!("{}!", winning_type)}</div>

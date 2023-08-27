@@ -13,7 +13,7 @@ impl Board {
 
     pub fn timeline_intersect(base: &Board, turn: usize) -> Board {
         let mut new_board = base.clone();
-        new_board.0.truncate(turn);
+        new_board.0.truncate(turn + 1);
         new_board
     }
 

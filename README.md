@@ -22,3 +22,7 @@ You can also run
 trunk build
 ```
 and then take the `dist` directory for a standalone distribution.
+
+## Rules
+- Players start with 30 chips ("timelines")
+- 

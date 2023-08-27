@@ -36,15 +36,17 @@ impl Multiverse {
         let target_timeline = &self.timelines[parent_index];
         let target_board = &target_timeline.boards
             [starting_time - target_timeline.starting_time];
+        let mut boards = vec![];
+        /* for i in 0..starting_time {
+            boards.push(Board::new(vec![], 0));
+        } */
+        boards.push(Board::timeline_intersect(target_board, self.get_turn()));
         self.timelines.push(Timeline {
             parent_index,
             starting_time: starting_time,
-            boards: vec![Board::timeline_intersect(
-                target_board,
-                self.get_turn(),
-            )],
+            boards: boards,
         });
-        (self.timelines.len() - 1, starting_time)
+        (self.timelines.len() - 1, 0)
     }
 
     pub fn get_active_player(&self) -> usize {
@@ -239,8 +241,13 @@ impl Multiverse {
     }
 
     pub fn showdown(&mut self, timeline: usize) -> crate::cards::HandType {
-        let state =
-            &mut self.timelines[timeline].boards.last_mut().unwrap().0.last().unwrap();
+        let state = &mut self.timelines[timeline]
+            .boards
+            .last_mut()
+            .unwrap()
+            .0
+            .last()
+            .unwrap();
         let hands = (0..self.players.len())
             .filter(|i| !state.player_states[i.clone()].folded)
             .map(|i| (i, state.player_states[i].hand.clone()))
