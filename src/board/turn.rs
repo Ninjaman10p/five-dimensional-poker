@@ -9,6 +9,7 @@ pub struct Turn {
     pub completed_stage: usize,
     pub bet_amount: i64,
     pub num_checks: usize,
+    pub winning_hand_type: Option<HandType>,
 }
 
 impl Turn {
@@ -34,6 +35,7 @@ impl Turn {
             completed_stage: 0,
             bet_amount: 0,
             num_checks: 0,
+            winning_hand_type: None,
         }
     }
 }

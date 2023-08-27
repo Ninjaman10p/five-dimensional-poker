@@ -158,6 +158,15 @@ pub fn BoardDisplay(props: &BoardDisplayProps) -> Html {
         }
     };
 
+    log::info!("{:?}", turn.winning_hand_type);
+    let winning_type_display = if let Some(winning_type) = turn.winning_hand_type {
+        html!{
+            <div class="winning-hand-display">{format!("{}!", winning_type)}</div>
+        }
+    } else {
+        html!{}
+    };
+
     let ondragover = {
         let infinity = props.turn_limit.is_none();
         let onbuttonclick = props.onbuttonclick.clone();
@@ -187,6 +196,7 @@ pub fn BoardDisplay(props: &BoardDisplayProps) -> Html {
                 ondragstart={ondragstart_global} />
             {buttons}
             {clock(&props.turn_limit.map(|x| (x+1).to_string()).unwrap_or("∞".to_string()), props.onbuttonclick.reform(|_| ButtonType::ToggleView))}
+            {winning_type_display}
         </div>
     }
 }

@@ -46,15 +46,21 @@ impl Rank {
     }
 }
 
-pub fn calculate_winner<T>(hands: &Vec<(T, Vec<Card>)>) -> T
+pub fn calculate_winners<T>(hands: &Vec<(T, Vec<Card>)>) -> (Vec<T>, HandType)
 where
     T: Sized + Copy + Clone,
 {
-    hands
+    let hands: Vec<(T, HandType)> = hands
         .iter()
-        .max_by(|a, b| type_of_hand(&a.1).cmp(&type_of_hand(&b.1)))
-        .unwrap()
-        .0
+        .map(|(a, cards)| (a.clone(), type_of_hand(&cards)))
+        .collect();
+    let winning_type = hands.iter().map(|a| a.1).max().unwrap();
+    let winners = hands
+        .iter()
+        .filter(|a| a.1 == winning_type)
+        .map(|a| a.0)
+        .collect();
+    (winners, winning_type)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
@@ -63,7 +69,7 @@ pub struct Card {
     rank: Rank,
 }
 
-#[derive(PartialEq, Eq, PartialOrd, Ord, Copy, Clone)]
+#[derive(PartialEq, Eq, PartialOrd, Ord, Copy, Clone, Debug)]
 pub enum HandType {
     NoPair,
     OnePair,
@@ -75,6 +81,26 @@ pub enum HandType {
     FourOfAKind,
     StraightFlush,
     FiveOfAKind,
+}
+
+impl std::fmt::Display for HandType {
+    fn fmt(
+        &self,
+        f: &mut std::fmt::Formatter<'_>,
+    ) -> Result<(), std::fmt::Error> {
+        write!(f, "{}", match self {
+        HandType::NoPair => "No Pairs",
+        HandType::OnePair => "One Pair",
+        HandType::TwoPairs => "Two Pairs",
+        HandType::ThreeOfAKind => "Three of a Kind",
+        HandType::Straight => "Straight",
+        HandType::Flush => "Flush",
+        HandType::FullHouse => "Full House",
+        HandType::FourOfAKind => "Four of a Kind",
+        HandType::StraightFlush => "Straight Flush",
+        HandType::FiveOfAKind => "Five of a Kind",
+            })
+    }
 }
 
 pub fn type_of_hand(hand: &Vec<Card>) -> HandType {

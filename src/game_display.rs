@@ -52,7 +52,8 @@ pub fn GameDisplay(props: &GameDisplayProps) -> Html {
                                 };
                         let turn_limit = game.get_turn();
                         if gloo_dialogs::confirm(&format!("Time travel? You will burn {}⏲ and have to raise in your current timeline", num_burn)) && game.try_raise_or_bet(timeline_from) {
-                            game.players[player].chips -= num_burn;
+                            let initiating_player = game.get_active_player();
+                            game.players[initiating_player].chips -= num_burn;
                             let card = {
                                 let from_turn = game.timelines[timeline_from].boards[t_from]
                                 .get_turn_mut(

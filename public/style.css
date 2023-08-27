@@ -254,3 +254,12 @@ button.start-game {
         transform: translate(-50%, 5px);
     }
 }
+
+.winning-hand-display {
+    position: absolute;
+    left: 250px;
+    transform: translate(-50%, 0%);
+    font-weight: bold;
+    top: 120px;
+    color: white;
+}

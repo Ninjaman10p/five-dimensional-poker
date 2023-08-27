@@ -1,5 +1,5 @@
 use crate::board::*;
-use crate::cards::calculate_winner;
+use crate::cards::calculate_winners;
 use crate::game::*;
 use crate::player::*;
 use rand::prelude::*;
@@ -227,40 +227,47 @@ impl Multiverse {
                 4 => {
                     // reveal a fifth here for hold'em
                     // showdown
-                    self.showdown(timeline)
+                    let winning_hand_type = self.showdown(timeline);
+                    let mut state = &mut self.timelines[timeline].boards
+                        [board_num]
+                        .0[board_turn];
+                    state.winning_hand_type = Some(winning_hand_type);
                 }
                 _ => { /* unreachable */ }
             }
         }
     }
 
-    pub fn showdown(&mut self, timeline: usize) {
-        let turn = self.get_turn();
+    pub fn showdown(&mut self, timeline: usize) -> crate::cards::HandType {
         let state =
-            &mut self.timelines[timeline].boards.last_mut().unwrap().0[turn];
+            &mut self.timelines[timeline].boards.last_mut().unwrap().0.last().unwrap();
         let hands = (0..self.players.len())
             .filter(|i| !state.player_states[i.clone()].folded)
             .map(|i| (i, state.player_states[i].hand.clone()))
             .collect();
-        let winner = calculate_winner(&hands);
+        let (winners, winning_hand) = calculate_winners(&hands);
         let mut deck = state.deck.clone();
         for i in state.player_states.iter() {
             deck.append(&mut i.hand.clone());
         }
         deck.append(&mut state.open_cards.clone());
-        let mut winnings: Vec<i64> =
-            (0..state.player_states.len()).map(|_| 0).collect();
+        let mut winnings: Vec<f64> =
+            (0..state.player_states.len()).map(|_| 0_f64).collect();
         for (i, player) in state.player_states.iter().enumerate() {
-            winnings[i] -= player.commitment();
-            winnings[winner] += player.commitment();
+            winnings[i] -= player.commitment() as f64;
+            for winner in &winners {
+                winnings[winner.clone()] +=
+                    player.commitment() as f64 / winners.len() as f64;
+            }
         }
         drop(state);
-        for (i, delta) in winnings.iter().enumerate() {
-            self.players[i].chips += delta;
+        for (i, delta) in winnings.into_iter().enumerate() {
+            self.players[i].chips += delta as i64;
         }
         deck.shuffle(&mut thread_rng());
         self.timelines[timeline]
             .boards
             .push(Board::new(deck, self.players.len()));
+        winning_hand
     }
 }
