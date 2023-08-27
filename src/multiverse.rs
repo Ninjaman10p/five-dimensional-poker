@@ -78,18 +78,28 @@ impl Multiverse {
                 .and_then(|a| a.parse().ok())
         {
             if amount >= 1 {
-                return self.try_bet(timeline, amount);
+                return self.try_bet(timeline, amount, false);
             }
         }
         return false;
     }
 
     pub fn try_raise_or_bet(&mut self, timeline: usize) -> bool {
-        if self.current_turn(timeline).bet_amount == 0 {
+        let output = if self.current_turn(timeline).bet_amount == 0 {
             self.try_initial_bet(timeline)
         } else {
             self.try_raise(timeline)
+        };
+        if output {
+            let turn_limit = self.get_turn();
+            self.timelines[timeline]
+                .boards
+                .last_mut()
+                .unwrap()
+                .get_turn_mut(Some(turn_limit))
+                .num_checks = 1;
         }
+        output
     }
 
     pub fn try_raise(&mut self, timeline: usize) -> bool {
@@ -104,7 +114,7 @@ impl Multiverse {
         .and_then(|a| a.parse::<i64>().ok())
         {
             if amount >= min_amount {
-                return self.try_bet(timeline, amount);
+                return self.try_bet(timeline, amount, false);
             }
         }
         false
@@ -136,13 +146,18 @@ impl Multiverse {
         return false;
     }
 
-    pub fn try_bet(&mut self, timeline: usize, amount: i64) -> bool {
+    pub fn try_bet(&mut self, timeline: usize, amount: i64, check: bool) -> bool {
         if self.can_bet(timeline, self.get_active_player(), amount) {
             let mut turn = self.current_turn(timeline).clone();
             turn.player_states[self.get_active_player()]
                 .bet
                 .push(amount);
             turn.bet_amount = amount;
+            if check {
+                turn.num_checks += 1;
+            } else {
+                turn.num_checks = 1;
+            };
             self.timelines[timeline].current_board_mut().0.push(turn);
             self.try_increase_stage(timeline);
             return true;
@@ -158,7 +173,7 @@ impl Multiverse {
             .get_turn(Some(self.get_turn()))
             .bet_amount;
         if self.can_bet(timeline, self.get_active_player(), bet_amount) {
-            return self.try_bet(timeline, bet_amount);
+            return self.try_bet(timeline, bet_amount, true);
         }
         return false;
     }
@@ -193,27 +208,17 @@ impl Multiverse {
             .filter(|p| !p.folded)
             .collect::<Vec<_>>()
             .len();
-        if state.num_checks == players_not_folded {
-            for player in &mut state.player_states {
-                if !player.folded {
-                    player.bet.push(0);
-                }
-            }
-        }
 
-        let mut next_stage = state
-            .player_states
-            .iter()
-            .filter(|p| !p.folded)
-            .map(|p| p.bet.len())
-            .min()
-            .unwrap();
+        let mut next_stage = 0;
         if players_not_folded <= 1 {
             next_stage = 4;
         }
-        if next_stage > state.completed_stage {
+        log::info!("{}", state.num_checks);
+        if next_stage > state.completed_stage
+            || state.num_checks >= players_not_folded
+        {
             state.num_checks = 0;
-            state.completed_stage = next_stage;
+            state.completed_stage = next_stage.max(state.completed_stage + 1);
             match state.completed_stage {
                 1 => {
                     // draw the initial 3 cards
