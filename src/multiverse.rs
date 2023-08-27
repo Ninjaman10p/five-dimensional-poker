@@ -107,7 +107,7 @@ impl Multiverse {
         let min_amount = 1 + self.current_turn(timeline).bet_amount;
         if let Some(amount) = gloo_dialogs::prompt(
             &format!(
-                "Enter new bet (min {}⏲ to double previous bet)",
+                "Enter new bet (min {}⏲ )",
                 min_amount
             ),
             None,
