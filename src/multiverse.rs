@@ -46,6 +46,7 @@ impl Multiverse {
             starting_time: starting_time,
             boards: boards,
         });
+        // will always be the first index
         (self.timelines.len() - 1, 0)
     }
 
